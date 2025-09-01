@@ -20,6 +20,10 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+ALTER TABLE users ADD COLUMN reset_token VARCHAR(255);
+ALTER TABLE users ADD COLUMN reset_token_expires BIGINT;
+
+
 -- Seed admin (email: admin@local.test, password: admin123)
 INSERT IGNORE INTO users (id, name, email, password_hash, role)
 VALUES (1, 'Admin', 'admin@local.test', '$2a$10$O6bRqlkOONZ7V4mWDxTj4OLoCMgB0vZtJb6vCKlPqVgmpZ8JYgSCa', 'admin');
