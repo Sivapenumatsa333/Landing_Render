@@ -14,10 +14,11 @@ async function findOrCreateUser(profile) {
   if (rows.length) return rows[0];
 
   const [result] = await pool.execute(
-    `INSERT INTO users (name, email, password_hash, role)
-     VALUES (?, ?, ?, 'employee')`,
-    [name, email, "", "employee"]
-  );
+  `INSERT INTO users (name, email, password_hash, role)
+   VALUES (?, ?, '', 'employee')`,
+  [name, email]
+);
+
 
   return { id: result.insertId, name, email, role: "employee" };
 }
