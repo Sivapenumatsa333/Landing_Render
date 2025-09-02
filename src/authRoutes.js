@@ -212,18 +212,8 @@ router.get(
   passport.authenticate("google", { session: false }),
   async (req, res) => {
     try {
-      const { id, displayName, emails, _json } = req.user;
-
-// Safely extract email
-let email = null;
-if (emails && emails.length > 0) {
-  email = emails[0].value;
-} else if (_json && _json.email) {
-  email = _json.email;
-} else {
-  // Fallback - create placeholder email if none is returned
-  email = `${id}@noemail.com`;
-}
+     const { id, displayName, emails } = req.user;
+      const email = emails[0].value;
 
       const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
       let user;
