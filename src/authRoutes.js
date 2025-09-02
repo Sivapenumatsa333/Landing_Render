@@ -19,7 +19,7 @@ const { requireAuth } = require("./middleware.auth");
 
 const router = express.Router();
 const COOKIE_NAME = process.env.COOKIE_NAME || "token";
-const FRONTEND = process.env.FRONTEND_BASE_URL || "http://localhost:8081";
+const FRONTEND = process.env.FRONTEND_BASE_URL || "https://landing-render-1.onrender.com";
 
 // ================== JWT HELPERS ==================
 function signToken(user) {
