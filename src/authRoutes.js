@@ -212,20 +212,14 @@ router.get(
   passport.authenticate("google", { session: false }),
   async (req, res) => {
     try {
-      // ADD NULL CHECKING HERE TOO
-      if (!req.user || !req.user.emails || !req.user.emails.length) {
-        return res.redirect(`${FRONTEND}/page2.html?error=authentication_failed`);
-      }
-
       const { id, displayName, emails } = req.user;
       const email = emails[0].value;
 
-      // Also add provider column to the insert
       const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
       let user;
       if (result.rows.length === 0) {
         const insert = await pool.query(
-          "INSERT INTO users (name, email, role, provider, provider_id) VALUES ($1, $2, 'employee', 'google', $3) RETURNING *",
+          "INSERT INTO users (name, email, role, provider_id) VALUES ($1, $2, 'employee', $3) RETURNING *",
           [displayName, email, id]
         );
         user = insert.rows[0];
