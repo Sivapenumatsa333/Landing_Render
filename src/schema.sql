@@ -22,6 +22,10 @@ CREATE TABLE IF NOT EXISTS users (
 
 ALTER TABLE users ADD COLUMN reset_token VARCHAR(255);
 ALTER TABLE users ADD COLUMN reset_token_expires BIGINT;
+ALTER TABLE users 
+ADD COLUMN provider VARCHAR(50),
+ADD COLUMN provider_id VARCHAR(255);
+
 
 
 -- Seed admin (email: admin@local.test, password: admin123)
