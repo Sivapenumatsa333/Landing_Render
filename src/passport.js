@@ -29,7 +29,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:4000/api/auth/google/callback",
+      callbackURL: "https://landing-render-1.onrender.com/api/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -50,7 +50,7 @@ passport.use(
       clientID: process.env.MICROSOFT_CLIENT_ID,
       responseType: "code",
       responseMode: "query",
-      redirectUrl: "http://localhost:4000/api/auth/microsoft/callback",
+      redirectUrl: "https://landing-render-1.onrender.com/api/auth/microsoft/callback",
       clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
       scope: ["profile", "email", "openid"],
     },
