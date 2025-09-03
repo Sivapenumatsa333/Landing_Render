@@ -212,36 +212,40 @@ router.get(
   passport.authenticate("google", { session: false }),
   async (req, res) => {
     try {
-      // Extract email properly from Google profile
-      const email = req.user.emails && req.user.emails[0] && req.user.emails[0].value;
-      const name = req.user.displayName || email || "User";
-      const providerId = req.user.id;
+      // Safely extract user information with fallbacks
+      const email = req.user.emails?.[0]?.value || req.user.email || null;
+      const name = req.user.displayName || req.user.name?.givenName || "Unknown User";
+      const googleId = req.user.id || req.user.provider_id || '';
 
       if (!email) {
-        throw new Error("No email provided by Google");
+        throw new Error("No email received from Google");
       }
 
-      let result = await pool.query("SELECT * FROM users WHERE email=$1", [email]);
+      // PostgreSQL query with parameterized values ($1, $2, etc.)
+      const queryResult = await pool.query(
+        "SELECT * FROM users WHERE email = $1", 
+        [email]
+      );
+      
       let user;
-
-      if (result.rows.length === 0) {
-        const insert = await pool.query(
-          `INSERT INTO users (name, email, role, provider, provider_id)
-           VALUES ($1, $2, 'employee', 'google', $3)
-           RETURNING *`,
-          [name, email, providerId]
+      
+      if (queryResult.rows.length === 0) {
+        // Insert new user with PostgreSQL syntax
+        const insertResult = await pool.query(
+          "INSERT INTO users (name, email, role, provider_id) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role",
+          [name, email, 'employee', googleId]
         );
-        user = insert.rows[0];
+        user = insertResult.rows[0];
       } else {
-        user = result.rows[0];
+        user = queryResult.rows[0];
       }
 
       const token = signToken(user);
       setAuthCookie(res, token);
       res.redirect(getDashboardUrl(user.role));
     } catch (err) {
-      console.error("Google login error:", err);
-      res.redirect(`${FRONTEND}/page2.html?error=${encodeURIComponent(err.message || "google_login_failed")}`);
+      console.error("Google auth error:", err);
+      res.redirect("http://localhost:8081/page2.html?error=google_login_failed");
     }
   }
 );
