@@ -212,15 +212,19 @@ router.get(
   passport.authenticate("google", { session: false }),
   async (req, res) => {
     try {
-     const { id, displayName, emails } = req.user;
-      const email = emails[0].value;
+      const email = extractEmail(req.user);
+      const name = req.user.displayName || email;
+      const providerId = req.user.id;
 
-      const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+      let result = await pool.query("SELECT * FROM users WHERE email=$1", [email]);
       let user;
+
       if (result.rows.length === 0) {
         const insert = await pool.query(
-          "INSERT INTO users (name, email, role, provider_id) VALUES ($1, $2, 'employee', $3) RETURNING *",
-          [displayName, email, id]
+          `INSERT INTO users (name, email, role, provider, provider_id)
+           VALUES ($1, $2, 'employee', 'google', $3)
+           RETURNING *`,
+          [name, email, providerId]
         );
         user = insert.rows[0];
       } else {
@@ -231,8 +235,8 @@ router.get(
       setAuthCookie(res, token);
       res.redirect(getDashboardUrl(user.role));
     } catch (err) {
-      console.error(err);
-      res.redirect(`${FRONTEND}/page2.html?error=google_login_failed`);
+      console.error("Google login error:", err);
+      res.redirect(`${FRONTEND}/page2.html?error=${encodeURIComponent(err.message || "google_login_failed")}`);
     }
   }
 );
