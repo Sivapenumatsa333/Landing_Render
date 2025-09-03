@@ -212,9 +212,14 @@ router.get(
   passport.authenticate("google", { session: false }),
   async (req, res) => {
     try {
-      const email = extractEmail(req.user);
-      const name = req.user.displayName || email;
+      // Extract email properly from Google profile
+      const email = req.user.emails && req.user.emails[0] && req.user.emails[0].value;
+      const name = req.user.displayName || email || "User";
       const providerId = req.user.id;
+
+      if (!email) {
+        throw new Error("No email provided by Google");
+      }
 
       let result = await pool.query("SELECT * FROM users WHERE email=$1", [email]);
       let user;
