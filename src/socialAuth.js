@@ -1,7 +1,7 @@
 // src/socialAuth.js
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const OIDCStrategy = require("passport-azure-ad").OIDCStrategy;
+const MicrosoftStrategy = require("passport-microsoft").Strategy;
 const { pool } = require("./db"); // PostgreSQL pool
 const bcrypt = require("bcryptjs");
 
