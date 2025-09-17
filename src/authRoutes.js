@@ -33,8 +33,8 @@ function signToken(user) {
 function setAuthCookie(res, token) {
   res.cookie(COOKIE_NAME, token, {
     httpOnly: true,
-    sameSite: "lax",
-    secure: false,
+    sameSite: "None",   // allow cross-site
+    secure: true,       // required for SameSite=None
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 }
