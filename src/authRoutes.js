@@ -40,14 +40,14 @@ function setAuthCookie(res, token) {
 }
 
 function getDashboardUrl(role) {
-  switch (role) {
+switch (role) {
     case "employer":
-      return `${FRONTEND}/employer.html`;
+      return "http://localhost:8081/employer.html";
     case "recruiter":
-      return `${FRONTEND}/recruiter.html`;
+      return "http://localhost:8081/recruiter.html";
     case "employee":
     default:
-      return `${FRONTEND}/employee.html`;
+      return "http://localhost:8081/employee.html";
   }
 }
 
