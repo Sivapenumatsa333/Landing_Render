@@ -40,14 +40,17 @@ function setAuthCookie(res, token) {
 }
 
 function getDashboardUrl(role) {
-switch (role) {
+  const base = process.env.FRONTEND_BASE_URL;
+
+  switch (role) {
     case "employer":
-      return "http://localhost:8081/employer.html";
-    case "recruiter":
-      return "http://localhost:8081/recruiter.html";
+      return `${base}/employer.html`;
     case "employee":
+      return `${base}/employee.html`;
+    case "recruiter":
+      return `${base}/recruiter.html`;
     default:
-      return "http://localhost:8081/employee.html";
+      return base; // fallback to homepage
   }
 }
 
