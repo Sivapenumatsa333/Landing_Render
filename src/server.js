@@ -7,6 +7,7 @@ require("dotenv").config();
 
 const { init } = require("./db");
 const authRoutes = require("./authRoutes");
+const employeeDashboardRoutes = require("./employeeDashboard");
 require("./socialAuth"); // load Google & Microsoft strategies
 
 const app = express();
@@ -34,6 +35,8 @@ app.get("/", (req, res) =>
 
 // Routes
 app.use("/api/auth", authRoutes);
+
+app.use("/api", employeeDashboardRoutes);
 
 // Example protected endpoint
 const { requireAuth } = require("./middleware.auth");
