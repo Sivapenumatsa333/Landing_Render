@@ -38,6 +38,14 @@ function setAuthCookie(res, token) {
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 }
+function clearAuthCookie(res) {
+  res.clearCookie(COOKIE_NAME, {
+    httpOnly: true,
+    sameSite: "none",
+    secure: true,
+    path: '/',
+  });
+}
 
 function getDashboardUrl(role) {
   const base = process.env.FRONTEND_BASE_URL;
