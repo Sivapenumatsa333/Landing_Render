@@ -17,10 +17,17 @@ const ORIGIN = process.env.CORS_ORIGIN || "*";
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
+
 app.use(
-  cors({
-    origin: ORIGIN === "*" ? true : ORIGIN,
-    credentials: true,
+  session({
+    secret: process.env.SESSION_SECRET || "your_secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: true,        // HTTPS only
+      sameSite: "lax",     // or 'none' if cross-origin
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    },
   })
 );
 app.use(passport.initialize());
