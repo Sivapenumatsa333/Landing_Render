@@ -8,6 +8,7 @@ require("dotenv").config();
 
 const { init } = require("./db");
 const authRoutes = require("./authRoutes");
+const profileRoutes = require("./profileRoutes");
 const employeeDashboardRoutes = require("./employeeDashboard");
 require("./socialAuth");
 
@@ -61,6 +62,10 @@ app.get("/", (req, res) =>
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api", employeeDashboardRoutes);
+// Profile routes
+app.use("/api", profileRoutes);
+// Serve uploaded files statically
+app.use('/uploads', express.static('uploads'));
 
 // Test endpoint to verify CORS and cookies
 app.get("/api/debug", (req, res) => {
