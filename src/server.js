@@ -9,6 +9,8 @@ require("dotenv").config();
 const { init } = require("./db");
 const authRoutes = require("./authRoutes");
 const profileRoutes = require("./profileRoutes");
+const searchRoutes = require('./searchRoutes');
+const networkingRoutes = require('./networkingRoutes');
 const employeeDashboardRoutes = require("./employeeDashboard");
 require("./socialAuth");
 
@@ -64,6 +66,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api", employeeDashboardRoutes);
 // Profile routes
 app.use("/api", profileRoutes);
+app.use('/api', searchRoutes);
+
+app.use('/api', networkingRoutes);
 // Serve uploaded files statically
 app.use('/uploads', express.static('uploads'));
 
