@@ -72,6 +72,87 @@ app.use('/api', networkingRoutes);
 // Serve uploaded files statically
 app.use('/uploads', express.static('uploads'));
 
+// Add this route to your server.js on Render
+app.get('/api/employee/profile/:id', async (req, res) => {
+  try {
+    const userId = req.params.id;
+    
+    console.log('🔍 Fetching profile for user ID:', userId);
+    
+    // Get basic profile info
+    const profileResult = await pool.query(
+      `SELECT p.*, u.name, u.email, u.role
+       FROM profiles p 
+       RIGHT JOIN users u ON p.user_id = u.id 
+       WHERE u.id = $1`,
+      [userId]
+    );
+
+    if (profileResult.rows.length === 0) {
+      console.log('❌ Profile not found for user ID:', userId);
+      return res.status(404).json({ error: "Profile not found" });
+    }
+
+    let profile = profileResult.rows[0];
+    console.log('✅ Found profile:', profile.name);
+    
+    // Get experiences
+    const experienceResult = await pool.query(
+      `SELECT * FROM experiences WHERE user_id = $1 ORDER BY start_date DESC`,
+      [userId]
+    );
+    
+    // Get education
+    const educationResult = await pool.query(
+      `SELECT * FROM educations WHERE user_id = $1 ORDER BY start_date DESC`,
+      [userId]
+    );
+    
+    // Get skills
+    const skillResult = await pool.query(
+      `SELECT * FROM skills WHERE user_id = $1 ORDER BY endorsements DESC`,
+      [userId]
+    );
+    
+    // Get certifications
+    const certificationResult = await pool.query(
+      `SELECT * FROM certifications WHERE user_id = $1 ORDER BY issue_date DESC`,
+      [userId]
+    );
+
+    const responseData = {
+      profile: {
+        id: profile.id,
+        user_id: profile.user_id,
+        name: profile.name,
+        email: profile.email,
+        role: profile.role,
+        headline: profile.headline,
+        location: profile.location,
+        about: profile.about,
+        avatar_url: profile.avatar_url,
+        cover_url: profile.cover_url,
+        website: profile.website,
+        birthday: profile.birthday,
+        gender: profile.gender,
+        languages: profile.languages,
+        interests: profile.interests
+      },
+      experiences: experienceResult.rows,
+      education: educationResult.rows,
+      skills: skillResult.rows,
+      certifications: certificationResult.rows
+    };
+
+    console.log('✅ Successfully fetched profile data for:', profile.name);
+    res.json(responseData);
+    
+  } catch (err) {
+    console.error("❌ Error fetching profile by ID:", err);
+    res.status(500).json({ error: "Server error while fetching profile" });
+  }
+});
+
 // Test endpoint to verify CORS and cookies
 app.get("/api/debug", (req, res) => {
   res.json({
