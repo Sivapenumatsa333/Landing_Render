@@ -112,6 +112,48 @@ CREATE INDEX IF NOT EXISTS idx_educations_user_id ON educations(user_id);
 CREATE INDEX IF NOT EXISTS idx_skills_user_id ON skills(user_id);
 CREATE INDEX IF NOT EXISTS idx_certifications_user_id ON certifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+-- Connections table
+CREATE TABLE IF NOT EXISTS connections (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user1_id INT NOT NULL,
+    user2_id INT NOT NULL,
+    status ENUM('pending', 'accepted', 'rejected', 'blocked') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user1_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (user2_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_connection (user1_id, user2_id),
+    CHECK (user1_id < user2_id) -- Prevents duplicate connections in both directions
+);
+
+-- Connection requests table (for tracking pending requests)
+CREATE TABLE IF NOT EXISTS connection_requests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    from_user_id INT NOT NULL,
+    to_user_id INT NOT NULL,
+    message TEXT,
+    status ENUM('pending', 'accepted', 'rejected', 'withdrawn') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (from_user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (to_user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_request (from_user_id, to_user_id, status)
+);
+
+-- ==========================================
+-- MESSAGES TABLE (for user-to-user chat)
+-- ==========================================
+CREATE TABLE IF NOT EXISTS messages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  sender_id INT NOT NULL,
+  receiver_id INT NOT NULL,
+  message TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
+);
 
 -- Seed admin (email: admin@local.test, password: admin123)
 INSERT INTO users (name, email, password_hash, role)
