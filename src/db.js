@@ -121,6 +121,52 @@ async function init() {
         updated_at TIMESTAMP DEFAULT NOW()
       );
     `);
+    // Create connections table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS connections (
+        id SERIAL PRIMARY KEY,
+        user1_id INTEGER NOT NULL,
+        user2_id INTEGER NOT NULL,
+        status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected', 'blocked')),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user1_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (user2_id) REFERENCES users(id) ON DELETE CASCADE,
+        UNIQUE (user1_id, user2_id),
+        CHECK (user1_id < user2_id)
+      );
+    `);
+
+    // Create connection_requests table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS connection_requests (
+        id SERIAL PRIMARY KEY,
+        from_user_id INTEGER NOT NULL,
+        to_user_id INTEGER NOT NULL,
+        message TEXT,
+        status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected', 'withdrawn')),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (from_user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (to_user_id) REFERENCES users(id) ON DELETE CASCADE,
+        UNIQUE (from_user_id, to_user_id, status)
+      );
+    `);
+
+    // Create messages table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS messages (
+        id SERIAL PRIMARY KEY,
+        sender_id INTEGER NOT NULL,
+        receiver_id INTEGER NOT NULL,
+        message TEXT NOT NULL,
+        is_read BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
+      );
+    `);
+
 
     console.log("✅ All PostgreSQL tables created successfully");
     
